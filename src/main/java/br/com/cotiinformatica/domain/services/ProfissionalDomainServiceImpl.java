@@ -83,6 +83,9 @@ public class ProfissionalDomainServiceImpl implements ProfissionalDomainService 
 
 		Profissional profissional = modelMapper.map(dto, Profissional.class);
 
+		if (!(profissionalRepository.findByCpf(dto.getCpf()).equals(profissional)))
+			throw new IllegalArgumentException("O CPF informado já pertence a um profissional cadastrado.");
+		
 		profissionalRepository.save(profissional);
 
 		AtualizarProfissionalResponseDto response = modelMapper.map(profissional,
