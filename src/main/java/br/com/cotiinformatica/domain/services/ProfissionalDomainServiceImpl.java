@@ -81,10 +81,15 @@ public class ProfissionalDomainServiceImpl implements ProfissionalDomainService 
 		if (profissionalRepository.findById(dto.getIdProfissional()).isEmpty())
 			throw new IllegalArgumentException("O ID informado não pertence a um profissional cadastrado.");
 
-		Profissional profissional = modelMapper.map(dto, Profissional.class);
+		Profissional profissional = profissionalRepository.findByCpf(dto.getCpf());
 
-		if (!(profissionalRepository.findByCpf(dto.getCpf()).equals(profissional)))
-			throw new IllegalArgumentException("O CPF informado já pertence a um profissional cadastrado.");
+		if (profissional != null) {
+
+			if (!(profissional.getIdProfissional().equals(dto.getIdProfissional())))
+				throw new IllegalArgumentException("O CPF informado já pertence a um outro profissional cadastrado.");
+		}
+
+		profissional = modelMapper.map(dto, Profissional.class);
 		
 		profissionalRepository.save(profissional);
 
