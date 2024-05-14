@@ -16,8 +16,10 @@ import br.com.cotiinformatica.domain.dtos.ConsultarProfissionaisResponseDto;
 import br.com.cotiinformatica.domain.dtos.CriarProfissionalRequestDto;
 import br.com.cotiinformatica.domain.dtos.CriarProfissionalResponseDto;
 import br.com.cotiinformatica.domain.entities.Profissional;
+import br.com.cotiinformatica.domain.entities.Servico;
 import br.com.cotiinformatica.domain.interfaces.ProfissionalDomainService;
 import br.com.cotiinformatica.infrastructure.repositories.ProfissionalRepository;
+import br.com.cotiinformatica.infrastructure.repositories.ServicoRepository;
 
 @Service
 public class ProfissionalDomainServiceImpl implements ProfissionalDomainService {
@@ -27,6 +29,9 @@ public class ProfissionalDomainServiceImpl implements ProfissionalDomainService 
 
 	@Autowired
 	private ModelMapper modelMapper;
+	
+	@Autowired
+	private ServicoRepository servicoRepository;
 
 	@Override
 	public CriarProfissionalResponseDto criarProfissional(CriarProfissionalRequestDto dto) {
@@ -107,6 +112,11 @@ public class ProfissionalDomainServiceImpl implements ProfissionalDomainService 
 		if (profissionalOpt.isEmpty())
 			throw new IllegalArgumentException("O ID informado não pertence a um profissional cadastrado.");
 
+		Optional<Servico> servicoOpt = servicoRepository.findServicoWithProfissionalByProfissionalId(id);
+		
+		if (servicoOpt.isPresent())
+			throw new IllegalArgumentException("O profissional informado não pode ser excluído pois está associado ao serviço '" + servicoOpt.get().getNome() + "'.");
+		
 		Profissional profissional = profissionalOpt.get();
 
 		profissionalRepository.delete(profissional);
