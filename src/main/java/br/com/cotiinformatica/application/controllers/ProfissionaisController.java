@@ -25,7 +25,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping(value = "/api/profissionais")
-public class ProfissionalController {
+public class ProfissionaisController {
 
 	@Autowired
 	private ProfissionalDomainService profissionalDomainService;

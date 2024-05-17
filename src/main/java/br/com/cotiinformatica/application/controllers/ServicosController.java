@@ -23,7 +23,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping(value = "/api/servicos")
-public class ServicoController {
+public class ServicosController {
 
 	@Autowired
 	private ServicoDomainService servicoDomainService;
