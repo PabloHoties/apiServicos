@@ -66,7 +66,7 @@ public class ProfissionaisController {
 	}
 
 	@DeleteMapping("deletar/{id}")
-	public ResponseEntity<String> deletar(UUID id) {
+	public ResponseEntity<String> deletar(@PathVariable("id") UUID id) {
 
 		profissionalDomainService.deletarProfissional(id);
 

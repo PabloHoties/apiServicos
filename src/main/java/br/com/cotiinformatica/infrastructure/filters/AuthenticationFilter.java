@@ -16,30 +16,35 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class AuthenticationFilter extends GenericFilterBean {
 
-	@Override
-	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
-			throws IOException, ServletException {
+    @Override
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+            throws IOException, ServletException {
 
-		final HttpServletRequest request = (HttpServletRequest) servletRequest;
-		final HttpServletResponse response = (HttpServletResponse) servletResponse;
-		final String authHeader = request.getHeader("Authorization");
+        final HttpServletRequest request = (HttpServletRequest) servletRequest;
+        final HttpServletResponse response = (HttpServletResponse) servletResponse;
+        final String authHeader = request.getHeader("Authorization");
 
-		if ("OPTIONS".equals(request.getMethod())) {
-			response.setStatus(HttpServletResponse.SC_OK);
-			filterChain.doFilter(request, response);
-		} else {
-			if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-				response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Acesso não autorizado.");
-				return;
-			}
-		}
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-		Environment env = RequestContextUtils.findWebApplicationContext(request).getEnvironment();
-		String jwtSecret = env.getProperty("jwt.secret");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Acesso não autorizado.");
+            return;
+        }
 
-		final String token = authHeader.substring(7);
-		Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
-		request.setAttribute("claims", claims);
-		filterChain.doFilter(request, response);
-	}
+        try {
+            Environment env = RequestContextUtils.findWebApplicationContext(request).getEnvironment();
+            String jwtSecret = env.getProperty("jwt.secret");
+
+            final String token = authHeader.substring(7);
+            Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
+            request.setAttribute("claims", claims);
+            filterChain.doFilter(request, response);
+        } catch (Exception e) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token inválido ou expirado.");
+        }
+    }
 }
